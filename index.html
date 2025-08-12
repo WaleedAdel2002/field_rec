@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>إدخال بيانات جغرافية</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>إدخال نقطة إلى قاعدة البيانات</h1>
+
+<div id="map"></div>
+<br>
+
+<form id="pointForm">
+    <label for="name">اسم الخدمة:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="service_type">نوع الخدمة:</label>
+    <input type="text" id="service_type" name="service_type" required>
+
+    <label for="description">وصف الخدمة:</label>
+    <textarea id="description" name="description" rows="4"></textarea>
+
+    <input type="hidden" id="lat" name="lat">
+    <input type="hidden" id="lng" name="lng">
+
+    <button type="button" id="locateMeBtn">تحديد موقعي</button>
+    <button type="submit">إضافة نقطة</button>
+</form>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([26.168, 32.723], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var marker;
+
+    function addMarker(latlng) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker(latlng).addTo(map);
+        document.getElementById('lat').value = latlng.lat;
+        document.getElementById('lng').value = latlng.lng;
+        map.setView(latlng, 15); // تكبير الخريطة للموقع الجديد
+    }
+
+    map.on('click', function(e) {
+        addMarker(e.latlng);
+    });
+
+    document.getElementById('locateMeBtn').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
+                addMarker(latlng);
+            }, function(error) {
+                alert('تعذر الوصول إلى الموقع. يرجى التأكد من تفعيل خدمة تحديد الموقع في جهازك.');
+            });
+        } else {
+            alert('متصفحك لا يدعم تحديد الموقع الجغرافي.');
+        }
+    });
+
+    document.getElementById('pointForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('name').value;
+        var service_type = document.getElementById('service_type').value;
+        var description = document.getElementById('description').value;
+        var lat = document.getElementById('lat').value;
+        var lng = document.getElementById('lng').value;
+
+        if (lat && lng) {
+            fetch('http://localhost:3000/add-point', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name, service_type: service_type, description: description, lat: lat, lng: lng })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                document.getElementById('pointForm').reset();
+            });
+        } else {
+            alert('يرجى اختيار موقع على الخريطة أو استخدام زر "تحديد موقعي".');
+        }
+    });
+</script>
+
+</body>
+</html>

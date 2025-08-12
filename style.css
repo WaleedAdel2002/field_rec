@@ -1,0 +1,101 @@
+/* تنسيقات أساسية */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    direction: rtl; /* لجعل الكتابة من اليمين إلى اليسار */
+    text-align: right;
+    box-sizing: border-box; /* لضمان أن الحشوة والحدود لا تزيد من عرض العنصر */
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* تنسيق الخريطة */
+#map {
+    height: 400px;
+    width: 100%;
+    margin: 0 auto 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* تنسيق النموذج */
+#pointForm {
+    width: 100%;
+    max-width: 500px; /* لتحديد عرض أقصى في الشاشات الكبيرة */
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#pointForm label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+#pointForm input[type="text"],
+#pointForm textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box; /* لضمان أن الحشوة لا تزيد من عرض العنصر */
+    font-size: 16px;
+}
+
+#pointForm textarea {
+    resize: vertical; /* للسماح بتغيير ارتفاع حقل النص */
+}
+
+#pointForm button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#pointForm button:hover {
+    background-color: #0056b3;
+}
+
+/* تنسيقات خاصة بزر تحديد الموقع */
+#locateMeBtn {
+    background-color: #28a745;
+}
+
+#locateMeBtn:hover {
+    background-color: #218838;
+}
+
+/* تصميم متجاوب (Responsive Design) */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    #pointForm {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+}
