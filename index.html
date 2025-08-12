@@ -6,35 +6,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
+    
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_Maps_API_KEY"></script>
+    
+    <script src="https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.0/Leaflet.GoogleMutant.js"></script>
+
 </head>
 <body>
 
 <h1>إدخال نقطة إلى قاعدة البيانات</h1>
 
+<div class="top-right-buttons">
+    <button type="button" id="locateMeBtn">تحديد موقعي</button>
+    <button type="button" id="recBtn" disabled>Rec</button>
+</div>
+
 <div id="map"></div>
 <br>
 
-<form id="pointForm">
-    <label for="name">اسم الخدمة:</label>
-    <input type="text" id="name" name="name" required>
+<div id="popupForm" class="popup">
+    <div class="popup-content">
+        <span class="close-btn">&times;</span>
+        <h2>إضافة نقطة جديدة</h2>
+        <form id="pointForm">
+            <label for="name">اسم الخدمة:</label>
+            <input type="text" id="name" name="name" required>
 
-    <label for="service_type">نوع الخدمة:</label>
-    <input type="text" id="service_type" name="service_type" required>
+            <label for="service_type">نوع الخدمة:</label>
+            <input type="text" id="service_type" name="service_type" required>
 
-    <label for="description">وصف الخدمة:</label>
-    <textarea id="description" name="description" rows="4"></textarea>
+            <label for="description">وصف الخدمة:</label>
+            <textarea id="description" name="description" rows="4"></textarea>
 
-    <input type="hidden" id="lat" name="lat">
-    <input type="hidden" id="lng" name="lng">
+            <input type="hidden" id="lat" name="lat">
+            <input type="hidden" id="lng" name="lng">
 
-    <button type="button" id="locateMeBtn">تحديد موقعي</button>
-    <button type="submit">إضافة نقطة</button>
-</form>
+            <button type="submit">إضافة نقطة</button>
+        </form>
+    </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
     var map = L.map('map').setView([26.168, 32.723], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    // طبقة OpenStreetMap (الافتراضية)
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // طبقات Google
+    var googleHybrid = L.gridLayer.googleMutant({ type: 'hybrid' });
+    var googleStreets = L.gridLayer.googleMutant({ type: 'roadmap' });
+    var googleSat = L.gridLayer.googleMutant({ type: 'satellite' });
+    var googleTerrain = L.gridLayer.googleMutant({ type: 'terrain' });
+
+    var baseLayers = {
+        "OpenStreetMap": osm,
+        "Google Earth (Hybrid)": googleHybrid,
+        "Google Earth (Satellite)": googleSat,
+        "Google Roads": googleStreets,
+        "Google Terrain": googleTerrain
+    };
+
+    L.control.layers(baseLayers).addTo(map);
 
     var marker;
 
@@ -45,7 +80,8 @@
         marker = L.marker(latlng).addTo(map);
         document.getElementById('lat').value = latlng.lat;
         document.getElementById('lng').value = latlng.lng;
-        map.setView(latlng, 15); // تكبير الخريطة للموقع الجديد
+        map.setView(latlng, 15);
+        document.getElementById('recBtn').disabled = false;
     }
 
     map.on('click', function(e) {
@@ -62,6 +98,24 @@
             });
         } else {
             alert('متصفحك لا يدعم تحديد الموقع الجغرافي.');
+        }
+    });
+
+    document.getElementById('recBtn').addEventListener('click', function() {
+        if (marker) {
+            document.getElementById('popupForm').style.display = 'flex';
+        } else {
+            alert('يرجى تحديد موقع أولاً.');
+        }
+    });
+
+    document.querySelector('.close-btn').addEventListener('click', function() {
+        document.getElementById('popupForm').style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target == document.getElementById('popupForm')) {
+            document.getElementById('popupForm').style.display = 'none';
         }
     });
 
@@ -86,8 +140,10 @@
                 alert(data);
                 if (marker) {
                     map.removeLayer(marker);
+                    document.getElementById('recBtn').disabled = true;
                 }
                 document.getElementById('pointForm').reset();
+                document.getElementById('popupForm').style.display = 'none';
             });
         } else {
             alert('يرجى اختيار موقع على الخريطة أو استخدام زر "تحديد موقعي".');
