@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
-    
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_Maps_API_KEY"></script>
-    
-    <script src="https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.0/Leaflet.GoogleMutant.js"></script>
-
 </head>
 <body>
 
@@ -49,27 +44,7 @@
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
     var map = L.map('map').setView([26.168, 32.723], 13);
-    
-    // طبقة OpenStreetMap (الافتراضية)
-    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // طبقات Google
-    var googleHybrid = L.gridLayer.googleMutant({ type: 'hybrid' });
-    var googleStreets = L.gridLayer.googleMutant({ type: 'roadmap' });
-    var googleSat = L.gridLayer.googleMutant({ type: 'satellite' });
-    var googleTerrain = L.gridLayer.googleMutant({ type: 'terrain' });
-
-    var baseLayers = {
-        "OpenStreetMap": osm,
-        "Google Earth (Hybrid)": googleHybrid,
-        "Google Earth (Satellite)": googleSat,
-        "Google Roads": googleStreets,
-        "Google Terrain": googleTerrain
-    };
-
-    L.control.layers(baseLayers).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var marker;
 
@@ -81,7 +56,7 @@
         document.getElementById('lat').value = latlng.lat;
         document.getElementById('lng').value = latlng.lng;
         map.setView(latlng, 15);
-        document.getElementById('recBtn').disabled = false;
+        document.getElementById('recBtn').disabled = false; // تفعيل زر Rec
     }
 
     map.on('click', function(e) {
@@ -101,18 +76,21 @@
         }
     });
 
+    // التحكم في ظهور النافذة المنبثقة
     document.getElementById('recBtn').addEventListener('click', function() {
         if (marker) {
-            document.getElementById('popupForm').style.display = 'flex';
+            document.getElementById('popupForm').style.display = 'flex'; // إظهار النافذة المنبثقة
         } else {
             alert('يرجى تحديد موقع أولاً.');
         }
     });
 
+    // إغلاق النافذة المنبثقة عند النقر على X
     document.querySelector('.close-btn').addEventListener('click', function() {
         document.getElementById('popupForm').style.display = 'none';
     });
 
+    // إغلاق النافذة المنبثقة عند النقر خارجها
     window.addEventListener('click', function(event) {
         if (event.target == document.getElementById('popupForm')) {
             document.getElementById('popupForm').style.display = 'none';
@@ -140,10 +118,10 @@
                 alert(data);
                 if (marker) {
                     map.removeLayer(marker);
-                    document.getElementById('recBtn').disabled = true;
+                    document.getElementById('recBtn').disabled = true; // تعطيل زر Rec
                 }
                 document.getElementById('pointForm').reset();
-                document.getElementById('popupForm').style.display = 'none';
+                document.getElementById('popupForm').style.display = 'none'; // إخفاء النافذة المنبثقة
             });
         } else {
             alert('يرجى اختيار موقع على الخريطة أو استخدام زر "تحديد موقعي".');
